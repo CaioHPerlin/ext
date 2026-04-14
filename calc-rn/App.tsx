@@ -76,6 +76,17 @@ export default function App() {
     }
   };
 
+  const showError = (error: unknown) => {
+    if (error instanceof Error && error.message) {
+      setDisplay(error.message);
+    } else {
+      setDisplay("Error");
+    }
+    setFirstValue(null);
+    setOperator(null);
+    setWaitingSecond(true);
+  };
+
   const formatNumber = (value: number) => {
     const text = value.toString();
     return text.length > 12 ? value.toPrecision(10) : text;
@@ -96,11 +107,8 @@ export default function App() {
         const result = runOperation(firstValue, currentValue, operator);
         setDisplay(formatNumber(result));
         setFirstValue(result);
-      } catch {
-        setDisplay("Erro");
-        setFirstValue(null);
-        setOperator(null);
-        setWaitingSecond(true);
+      } catch (error) {
+        showError(error);
         return;
       }
     }
@@ -118,11 +126,8 @@ export default function App() {
       setFirstValue(null);
       setOperator(null);
       setWaitingSecond(true);
-    } catch {
-      setDisplay("Erro");
-      setFirstValue(null);
-      setOperator(null);
-      setWaitingSecond(true);
+    } catch (error) {
+      showError(error);
     }
   };
 
