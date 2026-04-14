@@ -71,7 +71,7 @@ export default function App() {
       case "*":
         return a * b;
       case "/":
-        if (b === 0) throw new Error("Não é possível dividir por zero");
+        if (b === 0) throw new Error("Cannot divide by zero");
         return a / b;
     }
   };

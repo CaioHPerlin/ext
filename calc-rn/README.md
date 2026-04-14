@@ -15,7 +15,7 @@ Calculadora simples em React Native (Expo + TypeScript) com as operações:
 ## Como executar
 
 ```bash
-cd /home/runner/work/ext/ext/calc-rn
+cd calc-rn
 pnpm install
 pnpm start
 ```
