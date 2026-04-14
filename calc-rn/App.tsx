@@ -30,14 +30,14 @@ function CalcButton({ label, onPress, variant = "number", flex = 1 }: CalcButton
 
 export default function App() {
   const [display, setDisplay] = useState("0");
-  const [firstValue, setFirstValue] = useState<number | null>(null);
+  const [previousValue, setPreviousValue] = useState<number | null>(null);
   const [operator, setOperator] = useState<Operator | null>(null);
-  const [waitingSecond, setWaitingSecond] = useState(false);
+  const [isEnteringNextValue, setIsEnteringNextValue] = useState(false);
 
-  const inputNumber = (value: string) => {
-    if (waitingSecond) {
+  function inputNumber(value: string) {
+    if (isEnteringNextValue) {
       setDisplay(value === "." ? "0." : value);
-      setWaitingSecond(false);
+      setIsEnteringNextValue(false);
       return;
     }
 
@@ -48,21 +48,21 @@ export default function App() {
     }
 
     setDisplay((prev) => prev + value);
-  };
+  }
 
-  const clearAll = () => {
+  function clearAll() {
     setDisplay("0");
-    setFirstValue(null);
+    setPreviousValue(null);
     setOperator(null);
-    setWaitingSecond(false);
-  };
+    setIsEnteringNextValue(false);
+  }
 
-  const deleteLast = () => {
-    if (waitingSecond) return;
+  function deleteLast() {
+    if (isEnteringNextValue) return;
     setDisplay((prev) => (prev.length === 1 ? "0" : prev.slice(0, -1)));
-  };
+  }
 
-  const runOperation = (a: number, b: number, op: Operator): number => {
+  function runOperation(a: number, b: number, op: Operator): number {
     switch (op) {
       case "+":
         return a + b;
@@ -74,39 +74,39 @@ export default function App() {
         if (b === 0) throw new Error("Cannot divide by zero");
         return a / b;
     }
-  };
+  }
 
-  const showError = (error: unknown) => {
+  function showError(error: unknown) {
     if (error instanceof Error && error.message) {
       setDisplay(error.message);
     } else {
       setDisplay("Error");
     }
-    setFirstValue(null);
+    setPreviousValue(null);
     setOperator(null);
-    setWaitingSecond(true);
-  };
+    setIsEnteringNextValue(true);
+  }
 
-  const formatNumber = (value: number) => {
+  function formatNumber(value: number) {
     const text = value.toString();
     return text.length > 12 ? value.toPrecision(10) : text;
-  };
+  }
 
-  const chooseOperator = (nextOperator: Operator) => {
+  function chooseOperator(nextOperator: Operator) {
     const currentValue = Number(display);
 
-    if (firstValue === null) {
-      setFirstValue(currentValue);
+    if (previousValue === null) {
+      setPreviousValue(currentValue);
       setOperator(nextOperator);
-      setWaitingSecond(true);
+      setIsEnteringNextValue(true);
       return;
     }
 
-    if (operator && !waitingSecond) {
+    if (operator && !isEnteringNextValue) {
       try {
-        const result = runOperation(firstValue, currentValue, operator);
+        const result = runOperation(previousValue, currentValue, operator);
         setDisplay(formatNumber(result));
-        setFirstValue(result);
+        setPreviousValue(result);
       } catch (error) {
         showError(error);
         return;
@@ -114,22 +114,22 @@ export default function App() {
     }
 
     setOperator(nextOperator);
-    setWaitingSecond(true);
-  };
+    setIsEnteringNextValue(true);
+  }
 
-  const calculate = () => {
-    if (!operator || firstValue === null || waitingSecond) return;
+  function calculate() {
+    if (!operator || previousValue === null || isEnteringNextValue) return;
 
     try {
-      const result = runOperation(firstValue, Number(display), operator);
+      const result = runOperation(previousValue, Number(display), operator);
       setDisplay(formatNumber(result));
-      setFirstValue(null);
+      setPreviousValue(null);
       setOperator(null);
-      setWaitingSecond(true);
+      setIsEnteringNextValue(true);
     } catch (error) {
       showError(error);
     }
-  };
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -137,7 +137,7 @@ export default function App() {
       <View style={styles.calculator}>
         <View style={styles.displayContainer}>
           <Text style={styles.operationText}>
-            {firstValue !== null && operator ? `${firstValue} ${operator}` : " "}
+            {previousValue !== null && operator ? `${previousValue} ${operator}` : " "}
           </Text>
           <Text numberOfLines={1} adjustsFontSizeToFit style={styles.displayText}>
             {display}
